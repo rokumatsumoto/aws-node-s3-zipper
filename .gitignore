@@ -1,0 +1,22 @@
+# Dependency directories
+node_modules/
+
+# Webpack directory
+.webpack
+
+# Build directory
+.build
+
+# Serverless directories
+.serverless/
+
+# dotenv environment variables files
+.env
+.env*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
