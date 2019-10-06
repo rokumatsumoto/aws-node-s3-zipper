@@ -27,7 +27,7 @@ provider:
   runtime: nodejs10.x
   # you can overwrite defaults here
   #  stage: dev
-  #  region: us-east-1
+  region: eu-central-1
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -37,7 +37,9 @@ provider:
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
-    includeModules: true
+    includeModules:
+      forceExclude:
+        - aws-sdk
     packager: 'yarn' # Packager that will be used to package your external modules
   warmup:
     enabled: true
@@ -84,11 +86,17 @@ functions:
       - http:
           path: hello-typescript
           method: get
-  hello:
-    handler: src/hello.default
+  # hello:
+  #   handler: src/hello.default
+  #   events:
+  #     - http:
+  #         path: hello
+  #         method: get
+  s3Zipper:
+    handler: src/s3-zipper/zipHandler.default
     events:
       - http:
-          path: hello
+          path: s3-zipper
           method: get
 
 #    The following are a few example events you can configure

@@ -1,16 +1,19 @@
-import { successResponse, runWarm } from './utils';
+// import * as Archiver from 'archiver';
+// import * as AWS from 'aws-sdk';
+import { successResponse, runWarm } from  '../utils';
 
-const hello = async event => {
+const zipHandler: Function = async () => {
   // successResponse handles wrapping the response in an API Gateway friendly
   // format (see other responses, including CORS, in `./utils/lambdaResponse.js)
   const response = successResponse({
     message: 'Go Serverless! Your function executed successfully!',
-    input: event,
   });
 
   return response;
+
+
 };
 
 // runWarm function handles pings from the scheduler so you don't
 // have to put that boilerplate in your function.
-export default runWarm(hello);
+export default runWarm(zipHandler);

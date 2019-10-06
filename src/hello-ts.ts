@@ -2,7 +2,7 @@ import { successResponse, runWarm } from './utils';
 
 const helloTs: Function = async (event: AWSLambda.APIGatewayEvent) => {
   // successResponse handles wrapping the response in an API Gateway friendly
-  // format (see other responses, including CORS, in `./utils/lambda-response.js)
+  // format (see other responses, including CORS, in `./utils/lambdaResponse.js)
   const response = successResponse({
     message: 'Go Serverless! Your function executed successfully!',
     input: event,
