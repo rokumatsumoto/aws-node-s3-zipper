@@ -13,7 +13,14 @@
     "noEmit": false,
     "jsx": "preserve",
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*" // https://github.com/Microsoft/TypeScript-Node-Starter#type-definition-dts-files
+      ]
+    }
   },
   "include": ["src"]
 }

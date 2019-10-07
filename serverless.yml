@@ -25,9 +25,8 @@ package:
 provider:
   name: aws
   runtime: nodejs10.x
-  # you can overwrite defaults here
-  #  stage: dev
-  region: eu-central-1
+  stage: ${env:STAGE}
+  region: ${env:REGION}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -86,12 +85,6 @@ functions:
       - http:
           path: hello-typescript
           method: get
-  # hello:
-  #   handler: src/hello.default
-  #   events:
-  #     - http:
-  #         path: hello
-  #         method: get
   s3Zipper:
     handler: src/s3-zipper/zipHandler.default
     events:
