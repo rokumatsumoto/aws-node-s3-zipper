@@ -90,7 +90,7 @@ functions:
     events:
       - http:
           path: s3-zipper
-          method: get
+          method: post
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

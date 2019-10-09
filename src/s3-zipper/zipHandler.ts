@@ -3,40 +3,48 @@ import { Readable } from 'stream';
 import path from 'path';
 import { successResponse, runWarm, s3Handler } from  '../utils';
 
-const archive = Archiver('zip');
 type S3DownloadStreamDetails = { stream: Readable; filename: string };
+
+interface Zip {
+  keys: string[];
+  archiveFilePath: string;
+  archiveFolderPath: string;
+  archiveFormat: Archiver.Format;
+}
 
 class ZipHandler {
   keys: string[];
-  archiveFilename: string;
-  archiveFolderName: string;
-  // archive: Archiver.Archiver;
-  constructor(keys: string[], archiveFilename: string, archiveFolderName: string) {
+  archiveFilePath: string;
+  archiveFolderPath: string;
+  archiveFormat: Archiver.Format;
+  constructor(keys: string[], archiveFilePath: string, archiveFolderPath: string, archiveFormat: Archiver.Format) {
     this.keys = keys;
-    this.archiveFilename = archiveFilename;
-    this.archiveFolderName = archiveFolderName;
-
-    archive.on('error', (error: Archiver.ArchiverError) => {
-      throw new Error(`${error.name} ${error.code} ${error.message} ${error.path}
-      ${error.stack}`);
-    });
+    this.archiveFilePath = archiveFilePath;
+    this.archiveFolderPath = archiveFolderPath;
+    this.archiveFormat = archiveFormat;
   }
 
   s3DownloadStreams(): S3DownloadStreamDetails[] {
     return this.keys.map((key: string) => {
       return {
         stream: s3Handler.readStream(process.env.BUCKET, key),
-        filename: `${this.archiveFolderName}\\${path.basename(key)}`,
+        filename: `${this.archiveFolderPath}\\${path.basename(key)}`,
       };
     });
   }
 
   async process() {
     const { s3StreamUpload, uploaded } = s3Handler.writeStream
-    (process.env.ZIP_BUCKET, this.archiveFilename);
+      (process.env.ZIP_BUCKET, this.archiveFilePath);
     const s3DownloadStreams = this.s3DownloadStreams();
 
     await new Promise((resolve, reject) => {
+      const archive = Archiver(this.archiveFormat);
+      archive.on('error', (error: Archiver.ArchiverError) => {
+        throw new Error(`${error.name} ${error.code} ${error.message} ${error.path}
+      ${error.stack}`);
+      });
+
       console.log('Starting upload');
       s3StreamUpload.on('close', resolve);
       s3StreamUpload.on('end', resolve);
@@ -55,26 +63,22 @@ class ZipHandler {
   }
 }
 
-const zipHandler: Function = async () => {
+const zipHandler: Function = async (event: Zip) => {
   // successResponse handles wrapping the response in an API Gateway friendly
   // format (see other responses, including CORS, in `./utils/lambdaResponse.js)
 
   console.time('zipProcess');
+  console.log(event);
 
-  const keys: string[] = ['uploaders/1/blueprint-file/2ee8715f-7ef0-4c09-b75f-e48a1cda0f8e/bowser_low_poly_flowalistik (1).STL',
-  'uploaders/1/blueprint-file/d84abda0-bd93-4fef-b213-56a09058fd7c/pp spool holder v1.stl'
-  ];
+  // https://stackoverflow.com/q/56188864/2015025
+  // Lambda is standalone service that doesn't need to be integrated with API Gateway. queryStringParameters, body, body mapping templates, all of this is specific not to Lambda, but to Lambda - API Gateway integration.
+  const { keys, archiveFilePath, archiveFolderPath, archiveFormat } = event;
 
-  const archiveFilename: string = 'uploads/design_zip/file/1/battle-cat-keychain-dual-extrusion20190615-6f7iesdr.zip';
-
-  const archiveFolderName: string = 'samet/battle-cat-keychain-dual-extrusion';
-
-  const zipHandler = new ZipHandler(keys, archiveFilename, archiveFolderName);
+  const zipHandler = new ZipHandler(keys, archiveFilePath, archiveFolderPath, archiveFormat);
   await zipHandler.process();
 
   const response = successResponse({
-    message: 'Go Serverless! Your function executed successfully!',
-    data: archiveFilename
+    message: archiveFilePath
   });
 
   console.timeEnd('zipProcess');
