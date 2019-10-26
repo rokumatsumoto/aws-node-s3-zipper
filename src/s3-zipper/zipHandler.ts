@@ -74,6 +74,7 @@ const zipHandler: Function = async (event: Zip) => {
   // Lambda is standalone service that doesn't need to be integrated with API Gateway. queryStringParameters, body, body mapping templates, all of this is specific not to Lambda, but to Lambda - API Gateway integration.
   const { keys, archiveFilePath, archiveFolderPath, archiveFormat } = event;
 
+  // TODO: refactor (parameter count)
   const zipHandler = new ZipHandler(keys, archiveFilePath, archiveFolderPath, archiveFormat);
   await zipHandler.process();
 

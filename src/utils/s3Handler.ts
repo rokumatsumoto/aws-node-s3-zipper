@@ -15,6 +15,7 @@ class S3Handler {
     const streamPassThrough = new Stream.PassThrough();
 
     const params: AWS.S3.PutObjectRequest = {
+      ACL: 'private',
       Body: streamPassThrough,
       Bucket,
       ContentType: ARCHIVE_CONTENT_TYPE,
